@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cuenta Regresiva Especial 💖</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#E8A598',
+                        softPink: '#FFF0F5',
+                        accentPink: '#FF6B8B',
+                        deepRose: '#D85A75'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        handwriting: ['"Dancing Script"', 'cursive'],
+                        casual: ['"Caveat"', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #fff3f5 0%, #ffedf2 50%, #fce4ec 100%);
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(216, 90, 117, 0.12);
+        }
+
+        /* Floating background particles */
+        .floating-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart-particle {
+            position: absolute;
+            opacity: 0.5;
+            animation: floatUp 9s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.6) rotate(0deg);
+                opacity: 0;
+            }
+            20% { opacity: 0.6; }
+            100% {
+                transform: translateY(-10vh) scale(1.1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Animated Envelope */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            width: 270px;
+            height: 180px;
+            position: relative;
+            background: #f7a8b8;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 12px 30px rgba(216, 90, 117, 0.2);
+            transition: transform 0.5s ease;
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 135px solid #fbbecb;
+            border-right: 135px solid #fbbecb;
+            border-bottom: 90px solid transparent;
+            border-top: 90px solid #fbbecb;
+            transform-origin: top;
+            transition: transform 0.5s ease 0.2s;
+            z-index: 3;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .envelope.open::before {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 135px solid #f88fa4;
+            border-right: 135px solid #f88fa4;
+            border-bottom: 100px solid #f57993;
+            border-top: 80px solid transparent;
+            border-radius: 0 0 12px 12px;
+            z-index: 2;
+        }
+
+        .envelope-letter {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            right: 20px;
+            height: 140px;
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.5s ease 0.4s;
+            z-index: 2;
+        }
+
+        .envelope.open .envelope-letter {
+            transform: translateY(-60px);
+        }
+    </style>
+</head>
+<body class="relative text-gray-800 flex justify-center items-center min-h-screen">
+
+    <!-- Floating Background Particles -->
+    <div class="floating-bg" id="floatingBg"></div>
+
+    <!-- Music Control Button -->
+    <button id="musicToggle" onclick="toggleAudio()" class="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-md p-3 rounded-full shadow-md border border-pink-200 text-pink-600 hover:scale-110 active:scale-95 transition-all">
+        <i data-lucide="music" class="w-5 h-5"></i>
+    </button>
+    <audio id="bgAudio" loop preload="auto">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="w-full max-w-md px-4 py-8 relative z-10 flex flex-col items-center">
+
+        <!-- HEADER BANNER -->
+        <header class="text-center mb-6">
+            <span class="inline-block px-3.5 py-1 bg-pink-100 text-pink-600 font-semibold text-xs rounded-full uppercase tracking-wider mb-2 border border-pink-200">
+                Cuenta Regresiva ⏳✨
+            </span>
+            <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
+                Faltan muy pocos días
+            </h1>
+            <p class="text-xs text-pink-600 font-medium mt-1">Para el 9 de Diciembre 🎂</p>
+        </header>
+
+        <!-- COUNTDOWN TIMER -->
+        <section class="glass-card w-full rounded-3xl p-5 mb-8 text-center">
+            <div class="grid grid-cols-4 gap-2">
+                <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
+                    <span id="days" class="text-2xl font-extrabold text-accentPink leading-none">00</span>
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Días</span>
+                </div>
+                <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
+                    <span id="hours" class="text-2xl font-extrabold text-pink-500 leading-none">00</span>
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Horas</span>
+                </div>
+                <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
+                    <span id="minutes" class="text-2xl font-extrabold text-pink-500 leading-none">00</span>
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Min</span>
+                </div>
+                <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
+                    <span id="seconds" class="text-2xl font-extrabold text-deepRose leading-none">00</span>
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 1: ENVELOPE / BUTTON TO OPEN LETTER -->
+        <section id="envelopeSection" class="w-full flex flex-col items-center">
+            <div class="envelope-wrapper my-4 cursor-pointer" onclick="revealLetter()">
+                <div class="envelope" id="envelope">
+                    <div class="envelope-letter flex flex-col items-center justify-center text-center">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-pink-400 mb-1 animate-pulse"></i>
+                        <p class="font-handwriting text-lg text-pink-600 font-bold">Toca para abrir la carta</p>
+                    </div>
+                    <div class="envelope-pocket"></div>
+                </div>
+            </div>
+
+            <button onclick="revealLetter()" class="mt-6 bg-gradient-to-r from-accentPink to-deepRose text-white font-bold px-7 py-3 rounded-full shadow-lg shadow-pink-300/50 hover:opacity-95 active:scale-95 transition-all text-sm flex items-center gap-2">
+                <span>Abrir Carta Especial</span>
+                <i data-lucide="heart" class="w-4 h-4 fill-white"></i>
+            </button>
+        </section>
+
+        <!-- STEP 2: HEARTFELT LETTER CONTENT -->
+        <section id="letterSection" class="w-full hidden opacity-0 transform translate-y-6 transition-all duration-700">
+            <div class="glass-card rounded-3xl p-6 relative">
+                <div class="flex items-center gap-2 mb-4 border-b border-pink-100/80 pb-3">
+                    <div class="p-2 bg-pink-100 rounded-xl text-pink-600">
+                        <i data-lucide="mail-open" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-gray-800 text-base leading-tight">Para mi ñaña</h2>
+                        <p class="text-xs text-pink-500 font-medium">Con todo mi cariño</p>
+                    </div>
+                </div>
+
+                <!-- Exact Letter Content -->
+                <div class="space-y-4 text-sm text-gray-700 leading-relaxed font-sans">
+                    <p>
+                        Hoy no es un día cualquiera, es el día en el que empieza la cuenta regresiva para celebrar un añito más de vida, el día en el cual el mundo se volvió mucho más bonito porque naciste tú. Quería tomarme un momento para recordar lo afortunada que me siento de tenerte en mi vida ñaña y recordarte lo bella que es la vida.
+                    </p>
+
+                    <p>
+                        Gracias por estar siempre ahí, por cada risa incontrolable hasta que nos duele la panza, por los abrazos sinceros cuando las cosas se ponen difíciles y por escucharme siempre sin juzgarme. Eres esa persona con la que puedo ser yo misma y sobre todo sentirme segura contigo.
+                    </p>
+
+                    <div class="bg-pink-50/80 border-l-4 border-accentPink p-3.5 rounded-r-xl my-3">
+                        <p class="font-handwriting text-lg text-pink-700 font-bold leading-snug">
+                            "Las verdaderas amigas no son las que están siempre juntas, sino las que nunca se olvidan y se apoyan sin importar la distancia o el tiempo."
+                        </p>
+                    </div>
+
+                    <div class="pt-4 flex flex-col items-end border-t border-pink-100/80">
+                        <span class="font-handwriting text-xl text-accentPink font-bold">
+                            Tu hermana de otra madre, Paola Montenegro ❤️
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp Share Button -->
+            <button onclick="shareWhatsApp()" class="mt-6 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-emerald-200/50 active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
+                <i data-lucide="message-circle" class="w-5 h-5 fill-white"></i>
+                <span>Enviar por WhatsApp 📲</span>
+            </button>
+        </section>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // 1. Floating Hearts Background
+        function createHearts() {
+            const container = document.getElementById('floatingBg');
+            const icons = ['❤️', '💖', '✨', '🌸', '💕'];
+            for (let i = 0; i < 14; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-particle';
+                heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.animationDelay = `${Math.random() * 6}s`;
+                heart.style.fontSize = `${Math.random() * 10 + 12}px`;
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        // 2. Countdown Timer Logic (Target: Dec 9)
+        function updateCountdown() {
+            const now = new Date();
+            let targetYear = now.getFullYear();
+            
+            // Dec 9 target date
+            let targetDate = new Date(targetYear, 11, 9, 0, 0, 0);
+
+            // If Dec 9 has passed this year, set for next year
+            if (now > targetDate) {
+                targetDate = new Date(targetYear + 1, 11, 9, 0, 0, 0);
+            }
+
+            const diff = targetDate - now;
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(d).padStart(2, '0');
+            document.getElementById('hours').innerText = String(h).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(m).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(s).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // 3. Reveal Letter Action
+        function revealLetter() {
+            const envelope = document.getElementById('envelope');
+            const envelopeSection = document.getElementById('envelopeSection');
+            const letterSection = document.getElementById('letterSection');
+            const audio = document.getElementById('bgAudio');
+
+            envelope.classList.add('open');
+            audio.play().catch(e => console.log(e));
+
+            // Confetti effect
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff6b8b', '#e8a598', '#ffffff']
+                });
+            }
+
+            setTimeout(() => {
+                envelopeSection.classList.add('hidden');
+                letterSection.classList.remove('hidden');
+                setTimeout(() => {
+                    letterSection.classList.remove('opacity-0', 'translate-y-6');
+                }, 50);
+            }, 800);
+        }
+
+        // 4. Audio Control
+        function toggleAudio() {
+            const audio = document.getElementById('bgAudio');
+            const btn = document.getElementById('musicToggle');
+            if (audio.paused) {
+                audio.play();
+                btn.classList.add('text-pink-600');
+                btn.classList.remove('text-gray-400');
+            } else {
+                audio.pause();
+                btn.classList.remove('text-pink-600');
+                btn.classList.add('text-gray-400');
+            }
+        }
+
+        // 5. WhatsApp Share
+        function shareWhatsApp() {
+            const text = encodeURIComponent(`¡Hola ñaña! ✨ Te hice esta pequeña sorpresa porque empezó la cuenta regresiva para tu cumpleaños. ¡Abre el enlace para verla! 💖🎉\n\n${window.location.href}`);
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        }
+    </script>
+</body>
+</html>
