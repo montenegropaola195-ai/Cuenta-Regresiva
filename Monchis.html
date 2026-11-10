@@ -2,22 +2,22 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuenta Regresiva Especial 💖</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Canvas Confetti CDN -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
+
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -42,9 +42,15 @@
     <style>
         body {
             background: linear-gradient(135deg, #fff3f5 0%, #ffedf2 50%, #fce4ec 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
+        }
+
+        :focus-visible {
+            outline: 3px solid #D85A75;
+            outline-offset: 3px;
         }
 
         .glass-card {
@@ -58,10 +64,7 @@
         /* Floating background particles */
         .floating-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
             z-index: 0;
         }
@@ -73,21 +76,13 @@
         }
 
         @keyframes floatUp {
-            0% {
-                transform: translateY(105vh) scale(0.6) rotate(0deg);
-                opacity: 0;
-            }
-            20% { opacity: 0.6; }
-            100% {
-                transform: translateY(-10vh) scale(1.1) rotate(360deg);
-                opacity: 0;
-            }
+            0%   { transform: translateY(105vh) scale(0.6) rotate(0deg); opacity: 0; }
+            20%  { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1.1) rotate(360deg); opacity: 0; }
         }
 
         /* Animated Envelope */
-        .envelope-wrapper {
-            perspective: 1000px;
-        }
+        .envelope-wrapper { perspective: 1000px; }
 
         .envelope {
             width: 270px;
@@ -116,10 +111,7 @@
             border-radius: 6px 6px 0 0;
         }
 
-        .envelope.open::before {
-            transform: rotateX(180deg);
-            z-index: 1;
-        }
+        .envelope.open::before { transform: rotateX(180deg); z-index: 1; }
 
         .envelope-pocket {
             position: absolute;
@@ -149,63 +141,164 @@
             z-index: 2;
         }
 
-        .envelope.open .envelope-letter {
-            transform: translateY(-60px);
+        .envelope.open .envelope-letter { transform: translateY(-60px); }
+
+        .envelope-hint { animation: gentleBob 2.6s ease-in-out infinite; }
+        @keyframes gentleBob {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+
+        /* Song player */
+        .disc {
+            background:
+                radial-gradient(circle at center, #fff0f5 0 12%, #D85A75 13% 17%, #2b1a20 18% 100%);
+            box-shadow: 0 8px 20px rgba(216, 90, 117, 0.35);
+        }
+        .playing .disc { animation: spin 5s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+        .eq span {
+            width: 3px;
+            height: 100%;
+            background: #FF6B8B;
+            border-radius: 2px;
+            transform-origin: bottom;
+            transform: scaleY(0.3);
+        }
+        .playing .eq span { animation: eqBar 0.9s ease-in-out infinite; }
+        .playing .eq span:nth-child(2) { animation-delay: 0.2s; }
+        .playing .eq span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes eqBar {
+            0%, 100% { transform: scaleY(0.3); }
+            50%      { transform: scaleY(1); }
+        }
+
+        input[type=range].seek {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(to right, #FF6B8B var(--progress, 0%), #fbd5de var(--progress, 0%));
+            cursor: pointer;
+        }
+        input[type=range].seek::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            background: #D85A75;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+        }
+        input[type=range].seek::-moz-range-thumb {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #D85A75;
+            border: 2px solid #fff;
+        }
+
+        .seek { touch-action: none; }
+        .track .ipa { display: none; }
+        .track.playing .ipa { display: block; }
+        .track.playing .ip { display: none; }
+
+        /* Carruseles */
+        .no-scrollbar { scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .car-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; border-radius: 1rem; }
+        .car-slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+        .car-arrow { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #fbd5de; color: #D85A75; }
+        .car-arrow:disabled { opacity: .35; }
+        .dot { width: 6px; height: 6px; border-radius: 999px; background: #fbd5de; transition: all .25s; }
+        .dot.on { width: 18px; background: #FF6B8B; }
+        .hint-anim { animation: nudge 1.6s ease-in-out infinite; }
+        @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+
+        /* Fotos y videos */
+        .media-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #2b1a20; border-radius: 1rem; }
+        .media-frame::before { content: ''; position: absolute; inset: -20px; background: var(--img) center / cover; filter: blur(22px) brightness(.8); }
+        .media-frame img, .media-frame video { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; }
+        .media-frame .miss { display: none; position: absolute; inset: 0; z-index: 2; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1.25rem; background: #fff0f5; color: #D85A75; font-size: .8rem; }
+        .media-frame.missing .miss { display: flex; }
+
+        /* Botón superior: foto m.png + logo de música */
+        .m-btn { position: fixed; top: 14px; right: 14px; z-index: 50; width: 56px; height: 56px; border-radius: 50%; padding: 0; transition: transform .2s; }
+        .m-btn:hover { transform: scale(1.08); }
+        .m-btn:active { transform: scale(.95); }
+        .m-photo { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border: 3px solid #fff; background: linear-gradient(135deg, #FF6B8B, #D85A75); box-shadow: 0 6px 18px rgba(216, 90, 117, .35); }
+        .m-photo img { position: relative; width: 100%; height: 100%; object-fit: cover; display: block; transition: filter .3s; }
+        .m-btn:not(.on) .m-photo img { filter: grayscale(.6) brightness(.9); }
+        .m-bgicon { position: absolute; width: 60%; height: 60%; left: 20%; top: 20%; color: rgba(255, 255, 255, .6); }
+        .m-badge { position: absolute; right: -4px; bottom: -4px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; background: #9ca3af; border: 2px solid #fff; overflow: hidden; }
+        .m-btn.on .m-badge { background: #D85A75; }
+        .m-btn:not(.on) .m-badge::after { content: ''; position: absolute; width: 150%; height: 2px; background: #fff; transform: rotate(-45deg); }
+        .m-ring { position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #FF6B8B; opacity: 0; pointer-events: none; }
+        .m-btn.on .m-ring { animation: ringPulse 1.8s ease-out infinite; }
+        @keyframes ringPulse { 0% { transform: scale(.95); opacity: .8; } 100% { transform: scale(1.35); opacity: 0; } }
+
+        @media (prefers-reduced-motion: reduce) {
+            .heart-particle, .envelope-hint, .hint-anim, .m-ring, .playing .disc, .playing .eq span { animation: none; }
+            .floating-bg { display: none; }
         }
     </style>
 </head>
-<body class="relative text-gray-800 flex justify-center items-center min-h-screen">
+<body class="relative text-gray-800 flex justify-center items-start min-h-screen">
 
     <!-- Floating Background Particles -->
-    <div class="floating-bg" id="floatingBg"></div>
+    <div class="floating-bg" aria-hidden="true" id="floatingBg"></div>
 
-    <!-- Music Control Button -->
-    <button id="musicToggle" onclick="toggleAudio()" class="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-md p-3 rounded-full shadow-md border border-pink-200 text-pink-600 hover:scale-110 active:scale-95 transition-all">
-        <i data-lucide="music" class="w-5 h-5"></i>
+    <!-- Botón de música: foto m.png (carpeta audiovisual) + logo de música -->
+    <button id="musicToggle" onclick="toggleAudio()" aria-label="Reproducir o pausar la música" class="m-btn">
+        <span class="m-ring"></span>
+        <span class="m-photo">
+            <i data-lucide="music" class="m-bgicon"></i>
+            <img alt="" onerror="this.remove()">
+        </span>
+        <span class="m-badge"><i data-lucide="music" class="w-3.5 h-3.5"></i></span>
     </button>
-    <audio id="bgAudio" loop preload="auto">
-        <source src="https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3" type="audio/mpeg">
-    </audio>
 
     <!-- MAIN APP CONTAINER -->
-    <main class="w-full max-w-md px-4 py-8 relative z-10 flex flex-col items-center">
+    <main class="w-full max-w-md px-4 py-10 relative z-10 flex flex-col items-center">
 
         <!-- HEADER BANNER -->
         <header class="text-center mb-6">
-            <span class="inline-block px-3.5 py-1 bg-pink-100 text-pink-600 font-semibold text-xs rounded-full uppercase tracking-wider mb-2 border border-pink-200">
-                Cuenta Regresiva ⏳✨
+            <span id="badge" class="inline-block px-3.5 py-1 bg-pink-100 text-pink-600 font-semibold text-xs rounded-full tracking-wide mb-2 border border-pink-200">
+                Cuenta regresiva ⏳✨
             </span>
-            <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
+            <h1 id="mainTitle" class="text-2xl font-extrabold text-gray-800 tracking-tight">
                 Faltan muy pocos días
             </h1>
-            <p class="text-xs text-pink-600 font-medium mt-1">Para el 9 de Diciembre 🎂</p>
+            <p class="text-xs text-pink-600 font-medium mt-1">Para el 9 de diciembre 🎂</p>
         </header>
 
         <!-- COUNTDOWN TIMER -->
-        <section class="glass-card w-full rounded-3xl p-5 mb-8 text-center">
+        <section class="glass-card w-full rounded-3xl p-5 mb-8 text-center" aria-label="Cuenta regresiva">
             <div class="grid grid-cols-4 gap-2">
                 <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
                     <span id="days" class="text-2xl font-extrabold text-accentPink leading-none">00</span>
-                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Días</span>
+                    <span class="text-[11px] font-semibold text-gray-500 mt-1">Días</span>
                 </div>
                 <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
                     <span id="hours" class="text-2xl font-extrabold text-pink-500 leading-none">00</span>
-                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Horas</span>
+                    <span class="text-[11px] font-semibold text-gray-500 mt-1">Horas</span>
                 </div>
                 <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
                     <span id="minutes" class="text-2xl font-extrabold text-pink-500 leading-none">00</span>
-                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Min</span>
+                    <span class="text-[11px] font-semibold text-gray-500 mt-1">Min</span>
                 </div>
                 <div class="bg-white/80 p-3 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
                     <span id="seconds" class="text-2xl font-extrabold text-deepRose leading-none">00</span>
-                    <span class="text-[10px] font-semibold text-gray-400 uppercase mt-1">Seg</span>
+                    <span class="text-[11px] font-semibold text-gray-500 mt-1">Seg</span>
                 </div>
             </div>
         </section>
 
-        <!-- STEP 1: ENVELOPE / BUTTON TO OPEN LETTER -->
+        <!-- STEP 1: ENVELOPE -->
         <section id="envelopeSection" class="w-full flex flex-col items-center">
-            <div class="envelope-wrapper my-4 cursor-pointer" onclick="revealLetter()">
+            <div class="envelope-wrapper my-4 cursor-pointer" onclick="revealLetter()" role="button" tabindex="0"
+                 aria-label="Abrir la carta" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();revealLetter();}">
                 <div class="envelope" id="envelope">
                     <div class="envelope-letter flex flex-col items-center justify-center text-center">
                         <i data-lucide="sparkles" class="w-6 h-6 text-pink-400 mb-1 animate-pulse"></i>
@@ -215,27 +308,28 @@
                 </div>
             </div>
 
-            <button onclick="revealLetter()" class="mt-6 bg-gradient-to-r from-accentPink to-deepRose text-white font-bold px-7 py-3 rounded-full shadow-lg shadow-pink-300/50 hover:opacity-95 active:scale-95 transition-all text-sm flex items-center gap-2">
-                <span>Abrir Carta Especial</span>
+            <button onclick="revealLetter()" class="envelope-hint mt-6 bg-gradient-to-r from-accentPink to-deepRose text-white font-bold px-7 py-3 rounded-full shadow-lg shadow-pink-300/50 hover:opacity-95 active:scale-95 transition-all text-sm flex items-center gap-2">
+                <span>Abrir carta especial</span>
                 <i data-lucide="heart" class="w-4 h-4 fill-white"></i>
             </button>
         </section>
 
-        <!-- STEP 2: HEARTFELT LETTER CONTENT -->
+        <!-- STEP 2: LETTER + VIDEO + SONG -->
         <section id="letterSection" class="w-full hidden opacity-0 transform translate-y-6 transition-all duration-700">
-            <div class="glass-card rounded-3xl p-6 relative">
+
+            <!-- Letter -->
+            <article class="glass-card rounded-3xl p-6 relative">
                 <div class="flex items-center gap-2 mb-4 border-b border-pink-100/80 pb-3">
                     <div class="p-2 bg-pink-100 rounded-xl text-pink-600">
                         <i data-lucide="mail-open" class="w-5 h-5"></i>
                     </div>
                     <div>
                         <h2 class="font-bold text-gray-800 text-base leading-tight">Para mi ñaña</h2>
-                        <p class="text-xs text-pink-500 font-medium">Con todo mi cariño</p>
+                        <p class="text-xs text-pink-600 font-medium">Con todo mi cariño</p>
                     </div>
                 </div>
 
-                <!-- Exact Letter Content -->
-                <div class="space-y-4 text-sm text-gray-700 leading-relaxed font-sans">
+                <div class="space-y-4 text-[15px] text-gray-700 leading-relaxed font-sans">
                     <p>
                         Hoy no es un día cualquiera, es el día en el que empieza la cuenta regresiva para celebrar un añito más de vida, el día en el cual el mundo se volvió mucho más bonito porque naciste tú. Quería tomarme un momento para recordar lo afortunada que me siento de tenerte en mi vida ñaña y recordarte lo bella que es la vida.
                     </p>
@@ -244,25 +338,58 @@
                         Gracias por estar siempre ahí, por cada risa incontrolable hasta que nos duele la panza, por los abrazos sinceros cuando las cosas se ponen difíciles y por escucharme siempre sin juzgarme. Eres esa persona con la que puedo ser yo misma y sobre todo sentirme segura contigo.
                     </p>
 
-                    <div class="bg-pink-50/80 border-l-4 border-accentPink p-3.5 rounded-r-xl my-3">
-                        <p class="font-handwriting text-lg text-pink-700 font-bold leading-snug">
+                    <blockquote class="bg-pink-50/80 border-l-4 border-accentPink p-3.5 rounded-r-xl my-3">
+                        <p class="font-handwriting text-xl text-pink-700 font-bold leading-snug">
                             "Las verdaderas amigas no son las que están siempre juntas, sino las que nunca se olvidan y se apoyan sin importar la distancia o el tiempo."
                         </p>
-                    </div>
+                    </blockquote>
 
                     <div class="pt-4 flex flex-col items-end border-t border-pink-100/80">
-                        <span class="font-handwriting text-xl text-accentPink font-bold">
+                        <span class="font-handwriting text-xl text-accentPink font-bold text-right">
                             Tu hermana de otra madre, Paola Montenegro ❤️
                         </span>
                     </div>
                 </div>
-            </div>
+            </article>
 
-            <!-- WhatsApp Share Button -->
-            <button onclick="shareWhatsApp()" class="mt-6 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-emerald-200/50 active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
-                <i data-lucide="message-circle" class="w-5 h-5 fill-white"></i>
-                <span>Enviar por WhatsApp 📲</span>
-            </button>
+            <!-- FOTOS / VIDEOS / CANCIONES (se llenan desde audiovisual/img, /video y /audio) -->
+            <section class="glass-card rounded-3xl p-5 mt-6" aria-labelledby="photosTitle">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="p-2 bg-pink-100 rounded-xl text-pink-600"><i data-lucide="images" class="w-5 h-5"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <h2 id="photosTitle" data-one="Un recuerdo" class="font-bold text-gray-800 text-base leading-tight">Recuerdos</h2>
+                        <p class="text-xs text-pink-600 font-medium">Fotos para ti</p>
+                    </div>
+                    <span class="swipe-hint hint-anim inline-flex items-center text-xs font-semibold text-pink-600 bg-pink-50 border border-pink-100 rounded-full pl-1.5 pr-2.5 py-1"><i data-lucide="chevrons-left" class="w-3.5 h-3.5"></i>Desliza</span>
+                </div>
+                <div id="photosMount"></div>
+            </section>
+
+            <section class="glass-card rounded-3xl p-5 mt-6" aria-labelledby="videosTitle">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="p-2 bg-pink-100 rounded-xl text-pink-600"><i data-lucide="video" class="w-5 h-5"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <h2 id="videosTitle" data-one="Un video para ti" class="font-bold text-gray-800 text-base leading-tight">Videos para ti</h2>
+                        <p class="text-xs text-pink-600 font-medium">Dale play cuando quieras</p>
+                    </div>
+                    <span class="swipe-hint hint-anim inline-flex items-center text-xs font-semibold text-pink-600 bg-pink-50 border border-pink-100 rounded-full pl-1.5 pr-2.5 py-1"><i data-lucide="chevrons-left" class="w-3.5 h-3.5"></i>Desliza</span>
+                </div>
+                <div id="videosMount"></div>
+            </section>
+
+            <section class="glass-card rounded-3xl p-5 mt-6" aria-labelledby="songsTitle">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="p-2 bg-pink-100 rounded-xl text-pink-600"><i data-lucide="music" class="w-5 h-5"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <h2 id="songsTitle" data-one="Una canción para ti" class="font-bold text-gray-800 text-base leading-tight">Canciones para ti</h2>
+                        <p class="text-xs text-pink-600 font-medium">Para escuchar con cariño</p>
+                    </div>
+                    <span class="swipe-hint hint-anim inline-flex items-center text-xs font-semibold text-pink-600 bg-pink-50 border border-pink-100 rounded-full pl-1.5 pr-2.5 py-1"><i data-lucide="chevrons-left" class="w-3.5 h-3.5"></i>Desliza</span>
+                </div>
+                <div id="songsMount"></div>
+            </section>
+
+            <p class="text-center text-xs text-pink-600/80 font-medium mt-8 mb-2">Hecho con mucho cariño 💖</p>
         </section>
 
     </main>
@@ -270,8 +397,8 @@
     <script>
         lucide.createIcons();
 
-        // 1. Floating Hearts Background
-        function createHearts() {
+        // 1. Floating hearts background
+        (function createHearts() {
             const container = document.getElementById('floatingBg');
             const icons = ['❤️', '💖', '✨', '🌸', '💕'];
             for (let i = 0; i < 14; i++) {
@@ -283,24 +410,31 @@
                 heart.style.fontSize = `${Math.random() * 10 + 12}px`;
                 container.appendChild(heart);
             }
-        }
-        createHearts();
+        })();
 
-        // 2. Countdown Timer Logic (Target: Dec 9)
+        // 2. Countdown (target: 9 de diciembre)
+        let birthdayCelebrated = false;
         function updateCountdown() {
             const now = new Date();
-            let targetYear = now.getFullYear();
-            
-            // Dec 9 target date
-            let targetDate = new Date(targetYear, 11, 9, 0, 0, 0);
+            const isBirthday = now.getMonth() === 11 && now.getDate() === 9;
 
-            // If Dec 9 has passed this year, set for next year
-            if (now > targetDate) {
-                targetDate = new Date(targetYear + 1, 11, 9, 0, 0, 0);
+            if (isBirthday) {
+                ['days', 'hours', 'minutes', 'seconds'].forEach(id => {
+                    document.getElementById(id).innerText = '00';
+                });
+                document.getElementById('badge').innerText = '¡Llegó el día! 🎉';
+                document.getElementById('mainTitle').innerText = '¡Feliz cumpleaños, ñaña!';
+                if (!birthdayCelebrated && typeof confetti === 'function') {
+                    birthdayCelebrated = true;
+                    confetti({ particleCount: 120, spread: 90, origin: { y: 0.4 }, colors: ['#ff6b8b', '#e8a598', '#ffffff'] });
+                }
+                return;
             }
 
-            const diff = targetDate - now;
+            let targetDate = new Date(now.getFullYear(), 11, 9, 0, 0, 0);
+            if (now > targetDate) targetDate = new Date(now.getFullYear() + 1, 11, 9, 0, 0, 0);
 
+            const diff = targetDate - now;
             const d = Math.floor(diff / (1000 * 60 * 60 * 24));
             const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -311,59 +445,230 @@
             document.getElementById('minutes').innerText = String(m).padStart(2, '0');
             document.getElementById('seconds').innerText = String(s).padStart(2, '0');
         }
-
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // 3. Reveal Letter Action
+        // 3. Reveal letter
+        let letterOpened = false;
         function revealLetter() {
+            if (letterOpened) return;
+            letterOpened = true;
+
             const envelope = document.getElementById('envelope');
             const envelopeSection = document.getElementById('envelopeSection');
             const letterSection = document.getElementById('letterSection');
-            const audio = document.getElementById('bgAudio');
 
             envelope.classList.add('open');
-            audio.play().catch(e => console.log(e));
+            if (tracks.length) playTrack(featuredIndex);
 
-            // Confetti effect
             if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 80,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#ff6b8b', '#e8a598', '#ffffff']
-                });
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#ff6b8b', '#e8a598', '#ffffff'] });
             }
 
             setTimeout(() => {
                 envelopeSection.classList.add('hidden');
                 letterSection.classList.remove('hidden');
+                songCar.go(featuredIndex, true);
                 setTimeout(() => {
                     letterSection.classList.remove('opacity-0', 'translate-y-6');
                 }, 50);
             }, 800);
         }
 
-        // 4. Audio Control
-        function toggleAudio() {
-            const audio = document.getElementById('bgAudio');
-            const btn = document.getElementById('musicToggle');
-            if (audio.paused) {
-                audio.play();
-                btn.classList.add('text-pink-600');
-                btn.classList.remove('text-gray-400');
-            } else {
-                audio.pause();
-                btn.classList.remove('text-pink-600');
-                btn.classList.add('text-gray-400');
+        // 4. Media: listas de archivos por carpeta
+        // Un navegador no puede leer el contenido de una carpeta, así que escribe aquí los
+        // nombres EXACTOS de tus archivos (con extensión). Se ordenan solos de la A a la Z.
+        const MEDIA_ROOT = 'audiovisual';          // carpeta principal, junto a este HTML
+        const FEATURED_SONG = 'sin maquillar.mp4'; // la canción que suena al abrir la carta
+        const MEDIA = {
+            img:   ['foto1.jpg', 'foto2.jpg', 'foto3.png', 'foto4.jpg'],
+            video: ['saludo1.mp4', 'saludo2.mp4'],
+            audio: ['sin maquillar.mp4']  // ej: ['sin maquillar.mp4', 'otra cancion.mp3']
+        };
+
+        const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const mediaUrl = (folder, name) => `${MEDIA_ROOT}/${folder}/${encodeURIComponent(name)}`;
+        const sorted = list => [...list].sort((a, b) => a.localeCompare(b, 'es', { numeric: true, sensitivity: 'base' }));
+        const pretty = n => { const t = n.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim(); return t.charAt(0).toUpperCase() + t.slice(1); };
+        const tpl = html => { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; };
+        const fmt = t => isFinite(t) ? `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}` : '0:00';
+
+        // Carrusel genérico: desliza a la izquierda (o usa las flechas)
+        function mountCarousel(mountId, slides, label, onChange = () => {}) {
+            const mount = document.getElementById(mountId);
+            const section = mount.closest('section');
+            const titleEl = section.querySelector('h2');
+            const hint = section.querySelector('.swipe-hint');
+            const n = slides.length;
+            if (n === 1 && titleEl.dataset.one) titleEl.textContent = titleEl.dataset.one;
+
+            mount.innerHTML = `
+                <div class="car-track no-scrollbar" tabindex="0" role="group" aria-label="${label}"></div>
+                <div class="car-ctrl flex items-center justify-between mt-3">
+                    <button type="button" class="car-prev car-arrow" aria-label="Anterior"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <div class="car-mid flex items-center gap-1.5 text-xs text-gray-500 font-semibold" aria-live="polite"></div>
+                    <button type="button" class="car-next car-arrow" aria-label="Siguiente"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>`;
+            const track = mount.querySelector('.car-track');
+            slides.forEach(el => { el.classList.add('car-slide'); track.appendChild(el); });
+
+            if (n < 2) {
+                hint.classList.add('hidden');
+                mount.querySelector('.car-ctrl').classList.add('hidden');
+                return { go() {} };
             }
+
+            const mid = mount.querySelector('.car-mid');
+            const prev = mount.querySelector('.car-prev');
+            const next = mount.querySelector('.car-next');
+            let index = 0, raf;
+
+            const paint = () => {
+                mid.innerHTML = n <= 8
+                    ? slides.map((_, i) => `<span class="dot${i === index ? ' on' : ''}"></span>`).join('')
+                    : `${index + 1} / ${n}`;
+                prev.disabled = index === 0;
+                next.disabled = index === n - 1;
+            };
+            const go = (i, instant) => track.scrollTo({
+                left: Math.max(0, Math.min(n - 1, i)) * track.clientWidth,
+                behavior: (instant || REDUCED) ? 'auto' : 'smooth'
+            });
+
+            track.addEventListener('scroll', () => {
+                cancelAnimationFrame(raf);
+                raf = requestAnimationFrame(() => {
+                    const w = track.clientWidth;
+                    if (!w) return;
+                    if (track.scrollLeft > 8) hint.classList.add('hidden');
+                    const i = Math.round(track.scrollLeft / w);
+                    if (i !== index) { index = i; paint(); onChange(i); }
+                });
+            });
+            prev.onclick = () => go(index - 1);
+            next.onclick = () => go(index + 1);
+            paint();
+            return { go };
         }
 
-        // 5. WhatsApp Share
-        function shareWhatsApp() {
-            const text = encodeURIComponent(`¡Hola ñaña! ✨ Te hice esta pequeña sorpresa porque empezó la cuenta regresiva para tu cumpleaños. ¡Abre el enlace para verla! 💖🎉\n\n${window.location.href}`);
-            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        const emptyFrame = path => tpl(`<div class="media-frame missing"><div class="miss"><p>Aquí irán los archivos de<br><b>${path}</b></p></div></div>`);
+
+        // ----- Fotos -----
+        function photoSlide(name, i) {
+            const el = tpl(`<div class="media-frame"><img alt="Foto ${i + 1}" decoding="async"><div class="miss"><p>No se encontró<br><b></b></p></div></div>`);
+            const img = el.querySelector('img');
+            el.querySelector('b').textContent = `${MEDIA_ROOT}/img/${name}`;
+            const url = mediaUrl('img', name);
+            img.loading = i === 0 ? 'eager' : 'lazy';
+            img.onload = () => el.style.setProperty('--img', `url("${url}")`);
+            img.onerror = () => el.classList.add('missing');
+            img.src = url;
+            return el;
         }
+        const photos = sorted(MEDIA.img);
+        mountCarousel('photosMount', photos.length ? photos.map(photoSlide) : [emptyFrame(`${MEDIA_ROOT}/img`)], 'Fotos');
+
+        // ----- Canciones -----
+        const tracks = [];
+        let current = 0, songCar;
+        const setMusicUI = on => document.getElementById('musicToggle').classList.toggle('on', on);
+
+        function playTrack(i) {
+            const t = tracks[i];
+            if (!t) return;
+            tracks.forEach((o, j) => { if (j !== i) o.audio.pause(); });
+            videos.forEach(v => v.pause());
+            current = i;
+            t.audio.play().catch(() => {});
+        }
+        function toggleAudio() {
+            const playing = tracks.find(t => !t.audio.paused);
+            if (playing) playing.audio.pause(); else playTrack(current);
+        }
+
+        function songSlide(name, i, n) {
+            const el = tpl(`
+                <div class="track">
+                    <div class="flex items-center gap-4">
+                        <div class="disc w-20 h-20 rounded-full shrink-0" aria-hidden="true"></div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-handwriting text-2xl font-bold text-gray-800 leading-tight truncate"></h3>
+                            <div class="eq mt-1" aria-hidden="true"><span></span><span></span><span></span></div>
+                        </div>
+                        <button type="button" class="play shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-accentPink to-deepRose text-white shadow-lg shadow-pink-300/50 flex items-center justify-center active:scale-95 transition-all" aria-label="Reproducir canción">
+                            <span class="ip"><i data-lucide="play" class="w-5 h-5 fill-white"></i></span>
+                            <span class="ipa"><i data-lucide="pause" class="w-5 h-5 fill-white"></i></span>
+                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <input class="seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posición de la canción">
+                        <div class="flex justify-between text-[11px] text-gray-500 font-medium mt-1.5"><span class="tn">0:00</span><span class="tt">0:00</span></div>
+                    </div>
+                    <p class="err hidden mt-3 text-xs text-deepRose bg-pink-50 rounded-xl p-2.5">No se encontró la canción en <b></b></p>
+                </div>`);
+            const q = s => el.querySelector(s);
+            q('h3').textContent = pretty(name);
+            q('.err b').textContent = `${MEDIA_ROOT}/audio/${name}`;
+            const seek = q('.seek');
+
+            const audio = new Audio();
+            audio.preload = 'metadata';
+            audio.loop = n === 1;
+            const paint = () => {
+                const p = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+                seek.value = p;
+                seek.style.setProperty('--progress', p + '%');
+                q('.tn').textContent = fmt(audio.currentTime);
+            };
+            audio.addEventListener('play', () => { el.classList.add('playing'); setMusicUI(true); });
+            audio.addEventListener('pause', () => { el.classList.remove('playing'); setMusicUI(tracks.some(t => !t.audio.paused)); });
+            audio.addEventListener('timeupdate', paint);
+            audio.addEventListener('loadedmetadata', () => { q('.tt').textContent = fmt(audio.duration); paint(); });
+            audio.addEventListener('error', () => q('.err').classList.remove('hidden'));
+            audio.addEventListener('ended', () => {   // pasa a la siguiente y vuelve a empezar al final
+                el.classList.remove('playing');
+                const nx = (i + 1) % n;
+                songCar.go(nx);
+                playTrack(nx);
+            });
+            seek.addEventListener('input', () => {
+                if (audio.duration) audio.currentTime = (seek.value / 100) * audio.duration;
+                seek.style.setProperty('--progress', seek.value + '%');
+            });
+            q('.play').addEventListener('click', () => audio.paused ? playTrack(i) : audio.pause());
+            audio.src = mediaUrl('audio', name);
+
+            tracks.push({ audio, el });
+            return el;
+        }
+        const songs = sorted(MEDIA.audio);
+        const featuredIndex = Math.max(0, songs.findIndex(n => n.toLowerCase() === FEATURED_SONG.toLowerCase()));
+        const songSlides = songs.map((n, i) => songSlide(n, i, songs.length));
+        songCar = mountCarousel('songsMount',
+            songSlides.length ? songSlides : [tpl(`<p class="text-center text-sm text-gray-500 py-6">Aquí irán las canciones de <b>${MEDIA_ROOT}/audio</b></p>`)],
+            'Canciones');
+
+        // ----- Videos -----
+        const videos = [];
+        function videoSlide(name) {
+            const el = tpl(`<div class="media-frame"><video controls playsinline preload="metadata"></video><div class="miss"><p>No se encontró<br><b></b></p></div></div>`);
+            const v = el.querySelector('video');
+            el.querySelector('b').textContent = `${MEDIA_ROOT}/video/${name}`;
+            v.addEventListener('error', () => el.classList.add('missing'));
+            v.addEventListener('play', () => { tracks.forEach(t => t.audio.pause()); videos.forEach(o => { if (o !== v) o.pause(); }); });
+            v.src = mediaUrl('video', name) + '#t=0.1';
+            videos.push(v);
+            return el;
+        }
+        const vids = sorted(MEDIA.video);
+        mountCarousel('videosMount', vids.length ? vids.map(videoSlide) : [emptyFrame(`${MEDIA_ROOT}/video`)], 'Videos',
+            i => videos.forEach((v, j) => { if (j !== i) v.pause(); }));
+
+        // ----- Botón superior: m.png -----
+        document.querySelector('#musicToggle img').src = `${MEDIA_ROOT}/m.png`;
+
+        lucide.createIcons();
+    
     </script>
 </body>
 </html>
